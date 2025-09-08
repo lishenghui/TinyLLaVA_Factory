@@ -6,7 +6,7 @@
 # Node artifact files
 node_modules/
 dist/
-
+datasets/
 # Compiled Java class files
 *.class
 
@@ -47,6 +47,9 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+*.pyc
+*.out
+*.err
 
 #
 .ipynb_checkpoints
@@ -61,3 +64,6 @@ checkpoints/*
 scripts/.ipynb_checkpoints/*
 test/*
 output/*
+build
+outputs
+outputs_2nd_stage

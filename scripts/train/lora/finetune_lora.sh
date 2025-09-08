@@ -19,7 +19,7 @@ MODEL_MAX_LENGTH="${10}"
 VT_VARIANT="${VT_VERSION#*/}"
 LLM_VARIANT="${LLM_VERSION#*/}"
 
-deepspeed --include localhost:2,3,4,5 --master_port 29502 tinyllava/train/train.py \
+deepspeed --include localhost:0,1,2,3 --master_port 29502 tinyllava/train/train.py \
     --deepspeed ./scripts/zero2.json \
     --data_path  $DATA_PATH \
     --image_folder $IMAGE_PATH \
@@ -41,16 +41,16 @@ deepspeed --include localhost:2,3,4,5 --master_port 29502 tinyllava/train/train.
     --lora_r 128 \
     --lora_alpha 256 \
     --group_by_modality_length False \
-    --pretrained_model_path /mnt/data/sata/yinghu/checkpoints/llava_factory/tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-pretrain \
-    --output_dir /mnt/data/sata/yinghu/checkpoints/llava_factory/tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-finetune \
+    --pretrained_model_path /mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/outputs/epoch_1.0 \
+    --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/outputs_2nd_stage \
     --num_train_epochs 1 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50000 \
-    --save_total_limit 1 \
+    --save_steps 300 \
+    --save_total_limit 3 \
     --learning_rate 2e-4 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
@@ -61,6 +61,6 @@ deepspeed --include localhost:2,3,4,5 --master_port 29502 tinyllava/train/train.
     --gradient_checkpointing True \
     --dataloader_num_workers 8 \
     --lazy_preprocess True \
-    --report_to tensorboard \
+    --report_to wandb \
     --tokenizer_use_fast False \
     --run_name tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-finetune

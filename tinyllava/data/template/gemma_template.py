@@ -14,14 +14,17 @@ import tokenizers
     
 system = "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."
 
+from dataclasses import dataclass, field
+from tinyllava.data.template.formatter import EmptyFormatter, StringFormatter
+
 @register_template('gemma')
 @dataclass
 class GemmaTemplate(Template):
-    format_image_token: "Formatter" = StringFormatter(slot="<image>\n{{content}}")
-    format_user: "Formatter" = StringFormatter(slot="USER" + ": " + "{{content}}" + " ")
-    format_assistant: "Formatter" = StringFormatter(slot="ASSISTANT" + ": " + "{{content}}" + "<eos>")
-    system: "Formatter" = EmptyFormatter(slot=system+" ")
-    separator: "Formatter" = EmptyFormatter(slot=[' ASSISTANT: ', '<eos>'])
+    format_image_token: "Formatter" = field(default_factory=lambda: StringFormatter(slot="<image>\n{{content}}"))
+    format_user: "Formatter" = field(default_factory=lambda: StringFormatter(slot="USER" + ": " + "{{content}}" + " "))
+    format_assistant: "Formatter" = field(default_factory=lambda: StringFormatter(slot="ASSISTANT" + ": " + "{{content}}" + "<eos>"))
+    system: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot=system + " "))
+    separator: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot=[' ASSISTANT: ', '<eos>']))
 
     def _make_masks(self, labels, tokenizer, sep, eos_token_length, rounds):
         cur_len = 1 # bos

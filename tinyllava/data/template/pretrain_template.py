@@ -13,24 +13,40 @@ import torch
     
 
 
+# @register_template('pretrain')
+# @dataclass
+# class PretrainTemplate(Template):
+#     format_image_token: "Formatter" = EmptyFormatter(slot="")
+#     format_user: "Formatter" = EmptyFormatter(slot="<image>")
+#     format_assistant: "Formatter" = StringFormatter(slot="{{content}}\n")
+#     system: "Formatter" = EmptyFormatter(slot="")
+#     separator: "Formatter" = EmptyFormatter(slot=['', ''])
+    
+#     def make_labels(self, input_ids, prompt, tokenizer):
+#         labels = copy.deepcopy(input_ids)
+#         mask_len = len(self.tokenizer_image_token("<image>", tokenizer))
+#         labels[:mask_len] = IGNORE_INDEX
+#         return labels
+
+from dataclasses import dataclass, field
+
+from dataclasses import dataclass, field
+from tinyllava.data.template.formatter import EmptyFormatter, StringFormatter
+
 @register_template('pretrain')
 @dataclass
 class PretrainTemplate(Template):
-    format_image_token: "Formatter" = EmptyFormatter(slot="")
-    format_user: "Formatter" = EmptyFormatter(slot="<image>")
-    format_assistant: "Formatter" = StringFormatter(slot="{{content}}\n")
-    system: "Formatter" = EmptyFormatter(slot="")
-    separator: "Formatter" = EmptyFormatter(slot=['', ''])
+    format_image_token: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot=""))
+    format_user: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot="<image>"))
+    format_assistant: "Formatter" = field(default_factory=lambda: StringFormatter(slot="{{content}}\n"))
+    system: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot=""))
+    separator: "Formatter" = field(default_factory=lambda: EmptyFormatter(slot=['', '']))
     
     def make_labels(self, input_ids, prompt, tokenizer):
         labels = copy.deepcopy(input_ids)
         mask_len = len(self.tokenizer_image_token("<image>", tokenizer))
         labels[:mask_len] = IGNORE_INDEX
         return labels
-
-
-
-
 
 
 

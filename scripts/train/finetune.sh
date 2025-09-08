@@ -19,7 +19,7 @@ MODEL_MAX_LENGTH="${10}"
 VT_VARIANT="${VT_VERSION#*/}"
 LLM_VARIANT="${LLM_VERSION#*/}"
 
-deepspeed --include localhost:4,5,6,7 --master_port 29501 tinyllava/train/train.py \
+deepspeed --include localhost:0,1,2,3 --master_port 29501 tinyllava/train/train.py \
     --deepspeed ./scripts/zero3.json \
     --data_path  $DATA_PATH \
     --image_folder $IMAGE_PATH \
@@ -47,8 +47,8 @@ deepspeed --include localhost:4,5,6,7 --master_port 29501 tinyllava/train/train.
     --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50000 \
-    --save_total_limit 1 \
+    --save_steps 300 \
+    --save_total_limit 3 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \

@@ -3,6 +3,10 @@ FINETUNE_DATA_PATH=/home/ai/data/llava/dataset/text_files/llava_v1_5_mix665k.jso
 IMAGE_PATH=/home/ai/data/llava/dataset/llava/llava_pretrain/images #pretrain image dir
 FINETUNE_IMAGE_PATH=/home/ai/data/llava/dataset #finetune image dir
 
+DATA_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/datasets/train/text_files/blip_laion_cc_sbu_558k.json
+IMAGE_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/datasets/train/pretrain/images
+
+
 LLM_VERSION=microsoft/phi-2 # llm path in huggingface
 VT_VERSION=google/siglip-so400m-patch14-384 #vision tower path in huggingface
 VT_VERSION2="" #if you are not using mof vision tower, keep it empty
@@ -14,4 +18,4 @@ MODEL_MAX_LENGTH=2048 #max model length for llm
 
 
 bash scripts/train/pretrain.sh "$DATA_PATH" "$IMAGE_PATH" "$LLM_VERSION" "$VT_VERSION" "$VT_VERSION2" "$CN_VERSION" "$VERSION" "$TRAIN_RECIPE" "$MODEL_MAX_LENGTH"
-bash scripts/train/finetune.sh "$FINETUNE_DATA_PATH" "$FINETUNE_IMAGE_PATH" "$LLM_VERSION" "$VT_VERSION" "$VT_VERSION2" "$CN_VERSION" "$CONV_VERSION" "$VERSION" "$TRAIN_RECIPE" "$MODEL_MAX_LENGTH"
+# bash scripts/train/finetune.sh "$FINETUNE_DATA_PATH" "$FINETUNE_IMAGE_PATH" "$LLM_VERSION" "$VT_VERSION" "$VT_VERSION2" "$CN_VERSION" "$CONV_VERSION" "$VERSION" "$TRAIN_RECIPE" "$MODEL_MAX_LENGTH"

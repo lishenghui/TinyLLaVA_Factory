@@ -37,7 +37,18 @@ def eval_single(annotation_file, result_file):
     print(experiment_name)
     annotations = json.load(open(annotation_file))['data']
     annotations = {(annotation['image_id'], annotation['question'].lower()): annotation for annotation in annotations}
-    results = [json.loads(line) for line in open(result_file)]
+    print(f'Loaded annotations from {result_file}')
+    # Check that result file does exist
+    assert os.path.exists(result_file), f'{result_file} does not exist!'
+    results = []
+    with open(result_file, encoding='utf-8-sig') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            results.append(json.loads(line))
+    
+    # results = [json.loads(line) for line in open(result_file)]
 
     pred_list = []
     for result in results:
