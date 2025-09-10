@@ -9,6 +9,7 @@ def LLMFactory(model_name_or_path):
     model, tokenizer_and_post_load = None, None
     for name in LLM_FACTORY.keys():
         if name in model_name_or_path.lower():
+            print(f"LLMFactory: {name} in {model_name_or_path}")
             model, tokenizer_and_post_load = LLM_FACTORY[name]()
     assert model, f"{model_name_or_path} is not registered"
     return model, tokenizer_and_post_load

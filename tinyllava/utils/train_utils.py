@@ -38,7 +38,7 @@ def maybe_zero_3(param, ignore_status=False, name=None):
 
 
 # Borrowed from peft.utils.get_peft_model_state_dict
-def get_peft_state_maybe_zero_3(named_params, bias):
+def get_peft_state_maybe_zero_3(named_params, bias="none"):
     if bias == "none":
         to_return = {k: t for k, t in named_params if "lora_" in k}
     elif bias == "all":

@@ -34,6 +34,7 @@ def load_pretrained_model(model_name_or_path, load_type='hf', load_8bit=False, l
     else:
         kwargs['torch_dtype'] = torch.float16
     if model_name_or_path is not None and 'lora' not in model_name_or_path:
+        
         model = TinyLlavaForConditionalGeneration.from_pretrained(model_name_or_path,low_cpu_mem_usage=True)
         
     elif model_name_or_path is not None and 'lora' in model_name_or_path:
@@ -56,7 +57,9 @@ def load_pretrained_model(model_name_or_path, load_type='hf', load_8bit=False, l
             print('Merging LoRA weights...')
             model = model.merge_and_unload()
             print('Model is loaded...')
-        
+        else:
+            raise ValueError("LoRA adapter config not found.")
+            
     image_processor = model.vision_tower._image_processor
     context_len = getattr(model.config, 'max_sequence_length', 2048)
     # tokenizer = AutoTokenizer.from_pretrained(model.config.llm_model_name_or_path, use_fast=False, padding_side="right")

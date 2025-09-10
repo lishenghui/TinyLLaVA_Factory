@@ -47,7 +47,7 @@ deepspeed --include localhost:4,5,6,7 --master_port 29502 tinyllava/train/train.
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 4 \
-    --evaluation_strategy "no" \
+    --eval_strategy "no" \
     --save_strategy "steps" \
     --save_steps 50000 \
     --save_total_limit 1 \

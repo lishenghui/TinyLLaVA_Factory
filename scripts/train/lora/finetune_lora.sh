@@ -19,7 +19,7 @@ MODEL_MAX_LENGTH="${10}"
 VT_VARIANT="${VT_VERSION#*/}"
 LLM_VARIANT="${LLM_VERSION#*/}"
 
-deepspeed --include localhost:0,1,2,3 --master_port 29502 tinyllava/train/train.py \
+deepspeed --include localhost:0 --master_port 29502 tinyllava/train/train.py \
     --deepspeed ./scripts/zero2.json \
     --data_path  $DATA_PATH \
     --image_folder $IMAGE_PATH \
@@ -41,15 +41,15 @@ deepspeed --include localhost:0,1,2,3 --master_port 29502 tinyllava/train/train.
     --lora_r 128 \
     --lora_alpha 256 \
     --group_by_modality_length False \
-    --pretrained_model_path /mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/outputs/epoch_1.0 \
-    --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/outputs_2nd_stage \
+    --pretrained_model_path /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/tiny-llava-TinyLlama-1.1B-Chat-v1.0-siglip-so400m-patch14-384-base-pretrain/checkpoint-100 \
+    --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama \
     --num_train_epochs 1 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 4 \
-    --evaluation_strategy "no" \
+    --eval_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 300 \
+    --save_steps 50 \
     --save_total_limit 3 \
     --learning_rate 2e-4 \
     --weight_decay 0. \

@@ -94,11 +94,11 @@ class BaseTrainingRecipe:
     
     def save(self, model, trainer):
         model.config.use_cache = True
-        #save tokenizer       
+        # save tokenizer       
         model.tokenizer.save_pretrained(self.training_arguments.output_dir)
-        #save entire model config
+        # save entire model config
         model.config.save_pretrained(self.training_arguments.output_dir, from_pt=True)
-        #save trainer
+        # save trainer
         trainer.save_state()
 
         if 'finetune' in self.training_arguments.output_dir and self.training_arguments.pretrained_model_path is not None: # for finetune stage

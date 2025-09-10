@@ -19,7 +19,7 @@ MODEL_MAX_LENGTH="$9"
 VT_VARIANT="${VT_VERSION#*/}"
 LLM_VARIANT="${LLM_VERSION#*/}"
 
-deepspeed --include localhost:0,1,2,3 --master_port 29501 tinyllava/train/train.py \
+deepspeed --include localhost:0 --master_port 29501 tinyllava/train/train.py \
     --deepspeed ./scripts/zero3.json \
     --data_path  $DATA_PATH\
     --image_folder $IMAGE_PATH \
@@ -39,13 +39,13 @@ deepspeed --include localhost:0,1,2,3 --master_port 29501 tinyllava/train/train.
     --tune_vision_tower_from_layer 0 \
     --tune_type_connector full \
     --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-pretrain \
-    --num_train_epochs 1 \
+    --max_steps 1000 \
     --per_device_train_batch_size 32 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 2 \
-    --evaluation_strategy "no" \
+    --eval_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1000 \
+    --save_steps 500 \
     --save_total_limit 3 \
     --learning_rate 1e-3 \
     --weight_decay 0. \
@@ -60,3 +60,6 @@ deepspeed --include localhost:0,1,2,3 --master_port 29501 tinyllava/train/train.
     --report_to wandb \
     --tokenizer_use_fast False \
     --run_name tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-pretrain
+
+
+#--num_train_epochs 1

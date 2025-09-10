@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 import ast
 
+from transformers import GenerationMixin
 import torch
 import torch.utils.checkpoint
 from torch import nn
@@ -30,6 +31,7 @@ class TinyLlavaPreTrainedModel(PreTrainedModel):
     _no_split_modules = ["LlavaVisionAttention"]
     _skip_keys_device_placement = "past_key_values"
     _supports_flash_attn_2 = True
+    _supports_sdpa = False
 
     def _init_weights(self, module):
         std = (
@@ -55,7 +57,9 @@ class TinyLlavaPreTrainedModel(PreTrainedModel):
         return self.language_model._supports_sdpa
 
 
-class TinyLlavaForConditionalGeneration(TinyLlavaPreTrainedModel):
+class TinyLlavaForConditionalGeneration(TinyLlavaPreTrainedModel, GenerationMixin):
+    _supports_sdpa = False
+    
     def __init__(self, config: TinyLlavaConfig):
         
         super().__init__(config)

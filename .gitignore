@@ -50,7 +50,7 @@ Thumbs.db
 *.pyc
 *.out
 *.err
-
+*.txt
 #
 .ipynb_checkpoints
 __pycache__
@@ -67,3 +67,6 @@ output/*
 build
 outputs
 outputs_2nd_stage
+unsloth_compiled_cache
+tiny-llava-TinyLlama-1.1B-Chat-v1.0-siglip-so400m-patch14-384-base-pretrain
+lora_tinyllama
