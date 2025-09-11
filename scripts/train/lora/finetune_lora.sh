@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ $# -ne 10 ]; then
-    echo "Usage: $0 <DATA_PATH> <IMAGE_PATH> <LLM_VERSION> <VT_VERSION> <VT_VERSION2> <CN_VERSION> <CONV_VERSION> <VERSION> <TRAIN_RECIPE> <MODEL_MAX_LENGTH>"
+if [ $# -ne 11 ]; then
+    echo "Usage: $0 <DATA_PATH> <IMAGE_PATH> <LLM_VERSION> <VT_VERSION> <VT_VERSION2> <CN_VERSION> <CONV_VERSION> <VERSION> <TRAIN_RECIPE> <MODEL_MAX_LENGTH> <PRETRAIN_PATH>"
     exit 1
 fi
 
@@ -15,6 +15,7 @@ CONV_VERSION="$7"
 VERSION="$8"
 TRAIN_RECIPE="$9"
 MODEL_MAX_LENGTH="${10}"
+PRETRAIN_PATH="${11}"
 
 VT_VARIANT="${VT_VERSION#*/}"
 LLM_VARIANT="${LLM_VERSION#*/}"
@@ -41,7 +42,7 @@ deepspeed --include localhost:0 --master_port 29502 tinyllava/train/train.py \
     --lora_r 128 \
     --lora_alpha 256 \
     --group_by_modality_length False \
-    --pretrained_model_path /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/tiny-llava-TinyLlama-1.1B-Chat-v1.0-siglip-so400m-patch14-384-base-pretrain/checkpoint-100 \
+    --pretrained_model_path $PRETRAIN_PATH \
     --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama \
     --num_train_epochs 1 \
     --per_device_train_batch_size 8 \

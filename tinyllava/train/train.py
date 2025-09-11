@@ -90,9 +90,6 @@ class SaveCallback(TrainerCallback):
             torch.save(connector_state_dict, connector_output_path)
 
         if "lora" in self.training_recipe:
-            lora_state_dict = get_peft_state_maybe_zero_3(
-                model.named_parameters()
-            )
             if args.local_rank == 0 or args.local_rank == -1:
                 if isinstance(model, PeftModel):
                     base_model = model.merge_and_unload()  # 把 LoRA 合并回原模型
