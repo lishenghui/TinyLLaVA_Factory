@@ -37,13 +37,22 @@ def logger_setting(save_dir=None):
             root_logger.addHandler(fh)
             return root_logger
         
+# def log(*args):
+#     global root_logger
+#     local_rank = dist.get_rank()
+#     if local_rank == 0:
+#         root_logger.info(*args)
+
+
 def log(*args):
     global root_logger
-    local_rank = dist.get_rank()
+    if dist.is_available() and dist.is_initialized():
+        local_rank = dist.get_rank()
+    else:
+        local_rank = 0  # 单卡或者未初始化时当作 rank 0
+
     if local_rank == 0:
         root_logger.info(*args)
-
-
 
         
 def log_trainable_params(model):

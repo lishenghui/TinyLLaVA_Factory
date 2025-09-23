@@ -44,14 +44,14 @@ deepspeed --include localhost:0 --master_port 29502 tinyllava/train/train.py \
     --group_by_modality_length False \
     --pretrained_model_path $PRETRAIN_PATH \
     --output_dir /mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama \
-    --num_train_epochs 1 \
+    --num_train_epochs 5 \
     --per_device_train_batch_size 8 \
     --per_device_eval_batch_size 4 \
     --gradient_accumulation_steps 4 \
     --eval_strategy "no" \
     --save_strategy "steps" \
     --save_steps 50 \
-    --save_total_limit 3 \
+    --save_total_limit 5 \
     --learning_rate 2e-4 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
