@@ -12,13 +12,14 @@ from tinyllava.utils import (
     ModelArguments,
     DataArguments,
     TrainingArguments,
-    get_peft_state_maybe_zero_3,
     logger_setting,
     log_trainable_params,
 )
 from tinyllava.model import TinyLlavaConfig, TinyLlavaForConditionalGeneration
 from tinyllava.data.dataset import make_supervised_data_module
 from transformers import TrainerCallback, PreTrainedModel
+from tinyllava.train.get_training_data import get_train_dataset
+
 
 IS_TOKENIZER_GREATER_THAN_0_14 = version.parse(tokenizers.__version__) >= version.parse(
     "0.14"
@@ -164,13 +165,17 @@ def train():
     tokenizer = model.tokenizer
     data_arguments.image_processor = model.vision_tower._image_processor
     data_arguments.is_multimodal = True
-    print(
-        f"data_arguments: {data_arguments}, image_processor: {data_arguments.image_processor}"
-    )
+
     data_module = make_supervised_data_module(
         tokenizer=tokenizer, data_args=data_arguments
     )
     log_trainable_params(model)  # not work well with zero3
+
+    # data_module["train_dataset"] = get_train_dataset(
+    #     data_module["train_dataset"].text_preprocess,
+    #     data_module["train_dataset"].data_args.image_processor,
+    #     is_multimodal=True,
+    # )
 
     callbacks = []
     callbacks.append(SaveCallback(model, tokenizer, training_arguments.training_recipe))
@@ -183,7 +188,6 @@ def train():
     )
 
     trainer.train()
-
     training_recipe.save(model, trainer)
 
 

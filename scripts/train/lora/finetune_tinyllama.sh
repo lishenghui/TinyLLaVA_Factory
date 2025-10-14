@@ -7,7 +7,7 @@ VERSION=base-lora-zero2-r128
 PRETRAIN_TRAIN_RECIPE=common
 
 
-FINETUNE_DATA_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train/text_files/mini_train.json
+FINETUNE_DATA_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train/text_files/coco_train.json
 FINETUNE_IMAGE_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train
 
 VERSION=

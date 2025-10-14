@@ -14,7 +14,7 @@ from ..utils.constants import *
 import transformers
 import torch
 from torch.utils.data import Dataset
-
+from datasets import Dataset as HFDataset
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -90,6 +90,24 @@ class LazySupervisedDataset(Dataset):
             )
             data_dict["image"] = torch.zeros(3, crop_size["height"], crop_size["width"])
         return data_dict
+
+    def to_hf_dataset(self):
+        """Convert to a Hugging Face Dataset with only 'image' and 'conversations'."""
+        data_list = []
+        for sample in self.list_data_dict:
+            item = {}
+            item["conversations"] = sample["conversations"]
+
+            if "image" in sample:
+                image_path = os.path.join(self.data_args.image_folder, sample["image"])
+                item["image"] = Image.open(image_path).convert("RGB")
+            else:
+                item["image"] = None
+
+            data_list.append(item)
+
+        hf_dataset = HFDataset.from_list(data_list)
+        return hf_dataset
 
 
 @dataclass
