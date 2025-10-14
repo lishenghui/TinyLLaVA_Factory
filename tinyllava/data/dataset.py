@@ -5,6 +5,8 @@ from typing import Dict, Sequence, TYPE_CHECKING
 from PIL import Image, ImageFile
 import os
 
+from tinyllava.data.get_training_data import get_train_dataset
+
 from .text_preprocess import TextPreprocess
 from .image_preprocess import ImagePreprocess
 from ..utils.arguments import DataArguments
@@ -169,13 +171,22 @@ class DataCollatorForSupervisedDataset(object):
 
 
 def make_supervised_data_module(
-    tokenizer: transformers.PreTrainedTokenizer, data_args
+    tokenizer: transformers.PreTrainedTokenizer, data_args  # , text_preprocess
 ) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = LazySupervisedDataset(
-        tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args
-    )
+    # train_dataset = LazySupervisedDataset(
+    #     tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args
+    # )
+
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
+
+    text_preprocess = TextPreprocess(tokenizer, data_args.conv_version)
+    train_dataset = get_train_dataset(
+        text_preprocess,
+        data_args.image_processor,
+        is_multimodal=True,
+    )
+
     return dict(
         train_dataset=train_dataset, eval_dataset=None, data_collator=data_collator
     )

@@ -32,7 +32,6 @@ deepspeed --include localhost:0 --master_port 29502 tinyllava/train/train.py \
     --connector_type $CN_VERSION \
     --mm_vision_select_layer -2 \
     --image_aspect_ratio square \
-    --attn_implementation flash_attention_2 \
     --fp16 True \
     --training_recipe $TRAIN_RECIPE \
     --tune_type_llm lora \
@@ -65,3 +64,5 @@ deepspeed --include localhost:0 --master_port 29502 tinyllava/train/train.py \
     --report_to wandb \
     --tokenizer_use_fast False \
     --run_name tiny-llava-${LLM_VARIANT}-${VT_VARIANT}-${VERSION}-finetune
+
+    # --attn_implementation flash_attention_2 \

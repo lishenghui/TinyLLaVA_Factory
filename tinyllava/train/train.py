@@ -18,7 +18,6 @@ from tinyllava.utils import (
 from tinyllava.model import TinyLlavaConfig, TinyLlavaForConditionalGeneration
 from tinyllava.data.dataset import make_supervised_data_module
 from transformers import TrainerCallback, PreTrainedModel
-from tinyllava.train.get_training_data import get_train_dataset
 
 
 IS_TOKENIZER_GREATER_THAN_0_14 = version.parse(tokenizers.__version__) >= version.parse(
@@ -149,7 +148,7 @@ def train():
     model_args = training_recipe.add_args(model_args)
     model_config = TinyLlavaConfig()
     model_config.load_from_config(model_arguments)
-    # print(f"model_config: {model_arguments}")
+
     model = TinyLlavaForConditionalGeneration(model_config)
     # load pretrained checkpoint
     if training_arguments.pretrained_model_path is not None:
@@ -167,15 +166,11 @@ def train():
     data_arguments.is_multimodal = True
 
     data_module = make_supervised_data_module(
-        tokenizer=tokenizer, data_args=data_arguments
+        tokenizer=tokenizer,
+        data_args=data_arguments,
+        # text_preprocess=model.text_preprocess,
     )
     log_trainable_params(model)  # not work well with zero3
-
-    # data_module["train_dataset"] = get_train_dataset(
-    #     data_module["train_dataset"].text_preprocess,
-    #     data_module["train_dataset"].data_args.image_processor,
-    #     is_multimodal=True,
-    # )
 
     callbacks = []
     callbacks.append(SaveCallback(model, tokenizer, training_arguments.training_recipe))

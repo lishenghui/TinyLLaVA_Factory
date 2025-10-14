@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A NAISS2024-22-1358 -p alvis
-#SBATCH -N 1 --gpus-per-node=A100:1
+#SBATCH -N 1 --gpus-per-node=V100:1
 #SBATCH --job-name=paaa
 #SBATCH --tasks-per-node=1
 #SBATCH --exclude=alvis3-08
