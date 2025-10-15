@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # MODEL_PATH="/mimer/NOBACKUP/groups/bloom/shenghui/PaaA/paaa/ray_results/LoRA_TEST/FEDLLM_none_922a9_00000_0_base_model=unsloth_Llama-3_2-1B-Instruct,momentum=0.0000,num_clients=1,random_seed=121,aggregator=type_M_2025-09-21_16-30-50/checkpoint_000002"
-MODEL_PATH="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama/checkpoint-98"
+# MODEL_PATH="/mimer/NOBACKUP/groups/bloom/shenghui/PaaA/paaa/ray_results/LoRA_TEST/FEDLLM_none_7e365_00000_0_base_model=unsloth_Llama-3_2-1B-Instruct,momentum=0.0000,num_clients=1,random_seed=121,aggregator=type_M_2025-10-15_15-54-39/checkpoint_000001"
+MODEL_PATH="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama/checkpoint-100"
 
 echo "Evaluating model at $MODEL_PATH"
 MODEL_NAME="tiny-llava-phi-2-siglip-so400m-patch14-384-base-finetune"

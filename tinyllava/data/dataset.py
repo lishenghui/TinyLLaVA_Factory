@@ -1,115 +1,16 @@
-import copy
 from dataclasses import dataclass
-import json
-from typing import Dict, Sequence, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Sequence
+
+import torch
+import transformers
 from PIL import Image, ImageFile
-import os
 
 from tinyllava.data.get_training_data import get_train_dataset
 
-from .text_preprocess import TextPreprocess
-from .image_preprocess import ImagePreprocess
-from ..utils.arguments import DataArguments
 from ..utils.constants import *
-
-
-import transformers
-import torch
-from torch.utils.data import Dataset
-from datasets import Dataset as HFDataset
+from .text_preprocess import TextPreprocess
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-
-class LazySupervisedDataset(Dataset):
-    def __init__(
-        self,
-        data_path: str,
-        tokenizer: transformers.PreTrainedTokenizer,
-        data_args: DataArguments,
-    ):
-        super(LazySupervisedDataset, self).__init__()
-        list_data_dict = json.load(open(data_path, "r"))
-
-        self.tokenizer = tokenizer
-        self.list_data_dict = list_data_dict
-        self.data_args = data_args
-        self.text_preprocess = TextPreprocess(tokenizer, data_args.conv_version)
-
-        if (
-            hasattr(data_args, "image_processor")
-            and data_args.image_processor is not None
-        ):
-            self.image_preprocess = ImagePreprocess(
-                data_args.image_processor, data_args
-            )
-        else:
-            self.image_preprocess = None
-
-    def __len__(self):
-        return len(self.list_data_dict)
-
-    def set_image_processor(self, image_processor):
-        self.image_preprocess = ImagePreprocess(image_processor, self.data_args)
-
-    @property
-    def lengths(self):
-        length_list = []
-        for sample in self.list_data_dict:
-            img_tokens = 128 if "image" in sample else 0
-            length_list.append(
-                sum(len(conv["value"].split()) for conv in sample["conversations"])
-                + img_tokens
-            )
-        return length_list
-
-    @property
-    def modality_lengths(self):
-        length_list = []
-        for sample in self.list_data_dict:
-            cur_len = sum(
-                len(conv["value"].split()) for conv in sample["conversations"]
-            )
-            cur_len = cur_len if "image" in sample else -cur_len
-            length_list.append(cur_len)
-        return length_list
-
-    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
-        sources = self.list_data_dict[i]
-        data_dict = self.text_preprocess(copy.deepcopy(sources["conversations"]))
-        if "image" in sources:
-            image_file = self.list_data_dict[i]["image"]
-            image_folder = self.data_args.image_folder
-            image = Image.open(os.path.join(image_folder, image_file)).convert("RGB")
-            if self.image_preprocess is not None:
-                image = self.image_preprocess(image)
-            data_dict["image"] = image
-        elif self.data_args.is_multimodal:
-            crop_size = getattr(
-                self.data_args.image_processor,
-                "crop_size",
-                getattr(self.data_args.image_processor, "size"),
-            )
-            data_dict["image"] = torch.zeros(3, crop_size["height"], crop_size["width"])
-        return data_dict
-
-    def to_hf_dataset(self):
-        """Convert to a Hugging Face Dataset with only 'image' and 'conversations'."""
-        data_list = []
-        for sample in self.list_data_dict:
-            item = {}
-            item["conversations"] = sample["conversations"]
-
-            if "image" in sample:
-                image_path = os.path.join(self.data_args.image_folder, sample["image"])
-                item["image"] = Image.open(image_path).convert("RGB")
-            else:
-                item["image"] = None
-
-            data_list.append(item)
-
-        hf_dataset = HFDataset.from_list(data_list)
-        return hf_dataset
 
 
 @dataclass
@@ -174,9 +75,6 @@ def make_supervised_data_module(
     tokenizer: transformers.PreTrainedTokenizer, data_args  # , text_preprocess
 ) -> Dict:
     """Make dataset and collator for supervised fine-tuning."""
-    # train_dataset = LazySupervisedDataset(
-    #     tokenizer=tokenizer, data_path=data_args.data_path, data_args=data_args
-    # )
 
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
 

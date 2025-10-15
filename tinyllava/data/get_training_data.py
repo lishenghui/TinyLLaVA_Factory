@@ -1,5 +1,6 @@
 import torch
-from datasets import load_dataset
+import datasets
+from datasets import load_dataset, concatenate_datasets
 
 
 def extract_text(conversation: dict) -> list[dict]:
@@ -43,8 +44,27 @@ def preprocess_batch_hf(examples, text_preprocess, image_processor, is_multimoda
 
 
 def get_train_dataset(text_preprocess, image_processor, is_multimodal=True):
-    dataset = "fedlib/TinyLLAVA-Test"
-    dataset = load_dataset(dataset, split="train")
+    # dataset = "fedlib/TinyLLAVA-Test"
+    # dataset = load_dataset(dataset, split="train")
+    # dataset = dataset.rename_column("image", "image_raw")
+
+    dataset = "fedlib/TinyLLAVA-Training-Data"
+    # dataset = load_dataset(dataset, split="coco,textvqa", streaming=True)
+    # dataset = dataset.shuffle(seed=43).select(range(10000))
+    coco_stream = load_dataset(dataset, split="coco", streaming=True)
+    textvqa_stream = load_dataset(dataset, split="textvqa", streaming=True)
+
+    # coco_subset = Dataset.from_generator(lambda: coco_stream.take(5000))
+    # textvqa_subset = Dataset.from_generator(lambda: textvqa_stream.take(5000))
+
+    coco_samples = list(coco_stream.take(1000))
+    textvqa_samples = list(textvqa_stream.take(1000))
+
+    coco_subset = datasets.Dataset.from_list(coco_samples)
+    textvqa_subset = datasets.Dataset.from_list(textvqa_samples)
+
+    dataset = concatenate_datasets([coco_subset, textvqa_subset])
+    dataset = dataset.shuffle(seed=43)
     dataset = dataset.rename_column("image", "image_raw")
 
     train_set = dataset.map(

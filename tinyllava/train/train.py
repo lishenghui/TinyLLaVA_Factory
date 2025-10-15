@@ -1,31 +1,25 @@
 import os
-from packaging import version
 
 import torch
-import tokenizers
-import transformers
 from peft import PeftModel
-from tinyllava.utils import get_state_maybe_zero_3
+from transformers import PreTrainedModel, TrainerCallback
+
+from tinyllava.data.dataset import make_supervised_data_module
+from tinyllava.model import TinyLlavaConfig, TinyLlavaForConditionalGeneration
 from tinyllava.train.tinyllava_trainer import LLaVATrainer
 from tinyllava.training_recipe import TrainingRecipeFactory
 from tinyllava.utils import (
-    ModelArguments,
     DataArguments,
+    ModelArguments,
     TrainingArguments,
-    logger_setting,
+    get_state_maybe_zero_3,
     log_trainable_params,
-)
-from tinyllava.model import TinyLlavaConfig, TinyLlavaForConditionalGeneration
-from tinyllava.data.dataset import make_supervised_data_module
-from transformers import TrainerCallback, PreTrainedModel
-
-
-IS_TOKENIZER_GREATER_THAN_0_14 = version.parse(tokenizers.__version__) >= version.parse(
-    "0.14"
+    logger_setting,
 )
 
 
 def load_settings(model_arguments, data_arguments, training_arguments):
+
     model_arguments.tune_type_connector = training_arguments.tune_type_connector
     model_arguments.tune_type_llm = training_arguments.tune_type_llm
     model_arguments.tune_type_vision_tower = training_arguments.tune_type_vision_tower
@@ -131,14 +125,61 @@ class SaveCallback(TrainerCallback):
 
 
 def train():
-    # load argument
-    parser = transformers.HfArgumentParser(
-        (ModelArguments, DataArguments, TrainingArguments)
+    model_path = (
+        "/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/outputs/epoch_1.0"
     )
-    model_arguments, data_arguments, training_arguments = (
-        parser.parse_args_into_dataclasses()
+    training_arguments = TrainingArguments(
+        output_dir="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama",
+        per_device_eval_batch_size=4,
+        per_device_train_batch_size=2,
+        gradient_accumulation_steps=2,
+        learning_rate=0.0002,
+        num_train_epochs=5,
+        warmup_ratio=0.03,
+        logging_dir="",
+        save_total_limit=5,
+        fp16=False,
+        bf16=True,
+        lora_alpha=64,
+        tune_type_llm="lora",
+        training_recipe="lora",
+        tune_vision_tower_from_layer=0,
+        pretrained_model_path=model_path,
+        report_to="none",  # Disable logging to wandb
+        do_eval=False,
+        optim="adamw_8bit",
+        max_steps=100,
+        save_steps=50,
+        save_strategy="steps",
     )
 
+    model_arguments = ModelArguments(
+        cache_dir=None,
+        model_name_or_path="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        tokenizer_name_or_path=None,
+        attn_implementation="eager",
+        vision_tower="google/siglip-so400m-patch14-384",
+        vision_tower2="",
+        connector_type="mlp2x_gelu",
+        mm_vision_select_layer=-2,
+        mm_patch_merge_type="flat",
+        mm_vision_select_feature="patch",
+        resampler_hidden_size=768,
+        num_queries=128,
+        num_resampler_layers=3,
+        model_max_length=2048,
+        tokenizer_use_fast=False,
+        tokenizer_padding_side="right",
+    )
+
+    data_arguments = DataArguments(
+        data_path="/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train/text_files/mini_train.json",
+        lazy_preprocess=True,
+        is_multimodal=True,
+        image_folder="/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train",
+        image_aspect_ratio="square",
+        conv_version="llama",
+    )
     logger_setting(getattr(training_arguments, "output_dir", None))
     training_recipe = TrainingRecipeFactory(training_arguments.training_recipe)(
         training_arguments
@@ -168,8 +209,8 @@ def train():
     data_module = make_supervised_data_module(
         tokenizer=tokenizer,
         data_args=data_arguments,
-        # text_preprocess=model.text_preprocess,
     )
+
     log_trainable_params(model)  # not work well with zero3
 
     callbacks = []
