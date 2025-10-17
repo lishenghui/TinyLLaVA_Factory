@@ -15,7 +15,6 @@ EXE='apptainer exec --nv /mimer/NOBACKUP/groups/scalablefl/containers/fm.sif bas
 $EXE "source ~/.bashrc && export WANDB_MODE=offline && conda activate tinyllava && bash ./scripts/train/lora/finetune_tinyllama.sh"
 # apptainer exec --nv /mimer/NOBACKUP/groups/scalablefl/containers/fm.sif bash -c source ~/.bashrc && export WANDB_MODE=offline && conda activate tinyllava && bash ./scripts/train/lora/finetune_tinyllama.sh
 # $EXE "source ~/.bashrc && export WANDB_MODE=offline && bash ./scripts/exp/exp_2nd_stage_finetune/full_2nd_stage.sh"
-# $EXE "source ~/.bashrc && export WANDB_MODE=offline && bash ./scripts/exp/exp_1st_stage_pretrain/pretrain_phi2.sh"
 
 # EXE='apptainer exec --nv /mimer/NOBACKUP/groups/scalablefl/containers/torch.sif bash -c "source ~/.bashrc && python"'
 # $EXE ./scripts/exp/exp_1st_stage_pretrain/pretrain_phi2.sh

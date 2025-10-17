@@ -6,7 +6,7 @@ MODEL_PATH="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinylla
 
 echo "Evaluating model at $MODEL_PATH"
 MODEL_NAME="tiny-llava-phi-2-siglip-so400m-patch14-384-base-finetune"
-EVAL_DIR="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/datasets/eval"
+EVAL_DIR="/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/datasets/eval"
 
 python -m tinyllava.eval.model_vqa_loader \
     --model-path $MODEL_PATH \

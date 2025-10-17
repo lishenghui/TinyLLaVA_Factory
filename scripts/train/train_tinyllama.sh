@@ -3,8 +3,8 @@ FINETUNE_DATA_PATH=/home/ai/data/llava/dataset/text_files/llava_v1_5_mix665k.jso
 IMAGE_PATH=/home/ai/data/llava/dataset/llava/llava_pretrain/images #pretrain image dir
 FINETUNE_IMAGE_PATH=/home/ai/data/llava/dataset #finetune image dir
 
-DATA_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/datasets/train/text_files/blip_laion_cc_sbu_558k.json
-IMAGE_PATH=/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/datasets/train/pretrain/images
+DATA_PATH=/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/datasets/train/text_files/blip_laion_cc_sbu_558k.json
+IMAGE_PATH=/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/datasets/train/pretrain/images
 
 
 LLM_VERSION=TinyLlama/TinyLlama-1.1B-Chat-v1.0 # llm path in huggingface
