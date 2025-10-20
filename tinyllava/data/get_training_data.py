@@ -43,8 +43,7 @@ def preprocess_batch_hf(examples, text_preprocess, image_processor, is_multimoda
     }
 
 
-def get_train_dataset(text_preprocess, image_processor, is_multimodal=True):
-    dataset = "fedlib/TinyCOCO-Data"
+def get_train_dataset(text_preprocess, image_processor, dataset, is_multimodal=True):
     dataset = load_dataset(dataset, split="train")
     dataset = dataset.rename_column("image", "image_raw")
 

@@ -4,7 +4,7 @@ import torch
 from peft import PeftModel
 from transformers import PreTrainedModel, TrainerCallback
 
-from tinyllava.data.dataset import make_supervised_data_module
+from tinyllava.data import make_supervised_data_module_hf
 from tinyllava.model import TinyLlavaConfig, TinyLlavaForConditionalGeneration
 from tinyllava.train.tinyllava_trainer import LLaVATrainer
 from tinyllava.training_recipe import TrainingRecipeFactory
@@ -128,8 +128,8 @@ def train():
     model_path = (
         "/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/outputs/epoch_1.0"
     )
-    training_arguments = TrainingArguments(
-        output_dir="/mimer/NOBACKUP/groups/bloom/shenghui/TinyLLaVA_Factory/lora_tinyllama",
+    train_args = TrainingArguments(
+        output_dir="/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/lora_tinyllama",
         per_device_eval_batch_size=4,
         per_device_train_batch_size=2,
         gradient_accumulation_steps=2,
@@ -140,7 +140,7 @@ def train():
         save_total_limit=5,
         fp16=False,
         bf16=True,
-        lora_alpha=64,
+        lora_alpha=32,
         tune_type_llm="lora",
         training_recipe="lora",
         tune_vision_tower_from_layer=0,
@@ -153,7 +153,7 @@ def train():
         save_strategy="steps",
     )
 
-    model_arguments = ModelArguments(
+    model_args = ModelArguments(
         cache_dir=None,
         model_name_or_path="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         tokenizer_name_or_path=None,
@@ -173,31 +173,29 @@ def train():
     )
 
     data_arguments = DataArguments(
-        data_path="/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train/text_files/mini_train.json",
+        data_path="/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/datasets/train/text_files/mini_train.json",
         lazy_preprocess=True,
         is_multimodal=True,
-        image_folder="/mimer/NOBACKUP/groups/bloom/shenghui/LLaVA-Steering/datasets/train",
+        image_folder="/mimer/NOBACKUP/groups/scalablefl/shenghui/TinyLLaVA_Factory/datasets/train",
         image_aspect_ratio="square",
         conv_version="llama",
     )
-    logger_setting(getattr(training_arguments, "output_dir", None))
-    training_recipe = TrainingRecipeFactory(training_arguments.training_recipe)(
-        training_arguments
-    )
+    logger_setting(getattr(train_args, "output_dir", None))
+    training_recipe = TrainingRecipeFactory(train_args.training_recipe)(train_args)
     # model_args contain arguements for huggingface model .from_pretrained function
-    model_args = load_settings(model_arguments, data_arguments, training_arguments)
-    model_args = training_recipe.add_args(model_args)
+    model_init_args = load_settings(model_args, data_arguments, train_args)
+    model_init_args = training_recipe.add_args(model_init_args)
     model_config = TinyLlavaConfig()
-    model_config.load_from_config(model_arguments)
+    model_config.load_from_config(model_args)
 
     model = TinyLlavaForConditionalGeneration(model_config)
     # load pretrained checkpoint
-    if training_arguments.pretrained_model_path is not None:
-        model = training_recipe.load(model, model_args)
+    if train_args.pretrained_model_path is not None:
+        model = training_recipe.load(model, model_init_args)
     else:
-        model.load_llm(**model_args["llm"])
-        model.load_vision_tower(**model_args["vision_tower"])
-        model.load_connector(**model_args["connector"])
+        model.load_llm(**model_init_args["llm"])
+        model.load_vision_tower(**model_init_args["vision_tower"])
+        model.load_connector(**model_init_args["connector"])
 
     model = training_recipe(model)
     model.config.use_cache = False
@@ -206,7 +204,8 @@ def train():
     data_arguments.image_processor = model.vision_tower._image_processor
     data_arguments.is_multimodal = True
 
-    data_module = make_supervised_data_module(
+    # data_module = make_supervised_data_module(
+    data_module = make_supervised_data_module_hf(
         tokenizer=tokenizer,
         data_args=data_arguments,
     )
@@ -214,12 +213,12 @@ def train():
     log_trainable_params(model)  # not work well with zero3
 
     callbacks = []
-    callbacks.append(SaveCallback(model, tokenizer, training_arguments.training_recipe))
+    callbacks.append(SaveCallback(model, tokenizer, train_args.training_recipe))
     trainer = LLaVATrainer(
         model=model,  # does not require model.to(device), huggingface/deepspeed does it for you?
         tokenizer=tokenizer,
         callbacks=callbacks,
-        args=training_arguments,
+        args=train_args,
         **data_module,
     )
 
